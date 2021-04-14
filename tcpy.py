@@ -2,10 +2,11 @@
 import sys
 import socket
 import validators
-import concurrent.futures
+from multiprocessing import Pool
 
 # List of domains
 domain_list = sys.argv[1]
+SEC = 3
 
 def tcpy(d):
     try:
@@ -23,7 +24,7 @@ def tcpy(d):
                 IP = HOST[2][0]
                 if IP != '':
                     http_result = s.connect_ex((IP, HTTP))
-                    socket.setdefaulttimeout(3.0)
+                    socket.setdefaulttimeout(SEC)
                 else:
                     return
 
@@ -35,7 +36,7 @@ def tcpy(d):
             elif len(HOST[2]) > 1:
                 for IP in HOST[2]:
                     http_result = s.connect_ex((IP, HTTP))
-                    socket.setdefaulttimeout(3.0)
+                    socket.setdefaulttimeout(SEC)
 
                     if http_result == 0:
                         print(f"http://{domain}:80/")
@@ -47,7 +48,7 @@ def tcpy(d):
                 IP = HOST[2][0]
                 if IP != '':
                     https_result = s.connect_ex((IP, HTTPS))
-                    socket.setdefaulttimeout(3.0)
+                    socket.setdefaulttimeout(SEC)
                 else:
                    return
 
@@ -59,7 +60,7 @@ def tcpy(d):
             elif len(HOST[2]) > 1:
                 for IP in HOST[2]:
                     https_result = s.connect_ex((IP, HTTPS))
-                    socket.setdefaulttimeout(3.0)
+                    socket.setdefaulttimeout(SEC)
 
                     if https_result == 0:
                         print(f"https://{domain}:443/")
@@ -67,22 +68,25 @@ def tcpy(d):
                         IP=""
     except KeyboardInterrupt as e:
         print("Cancelling...")
+        sys.stdout.flush()
+        sys.exit(1)
     except socket.gaierror as e:
-        #print(f"[!] ERROR in: main(): {e}")
         pass
     except socket.error as e:
-        #print(f"[!] ERROR in: main(): {e}")
+        pass
+    except socket.timeout as e:
         pass
     except Exception as e:
-        #print(f"[!] ERROR in: main(): {e}")
+        print(f"[!] ERROR in: tcpy: {e}")
+        sys.stdout.flush()
         pass
 
 def main():
     with open(domain_list, "r") as f:
         domains = f.readlines()
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=50) as executor:
-        results = executor.map(tcpy, domains)
+    with Pool(50) as p:
+        results = p.map(tcpy, domains)
         success = list(filter(None, results))
 
     print("[+] Done...")
