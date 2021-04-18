@@ -1,11 +1,25 @@
 #!/usr/bin/env python3
 import sys
 import socket
+import argparse
 import validators
 from multiprocessing import Pool
 
+parser = argparse.ArgumentParser(description="Accepts domains from stdin and checks if specified ports are open")
+parser.add_argument("-w", "--workers", default=50, type=int, help="Amount of workers/processes to open (Default is 50)")
+
+args = parser.parse_args()
+workers = args.workers
+
 # List of domains
-domain_list = sys.argv[1]
+try:
+    domain_list = []
+    for line in sys.stdin:
+        domain_list.append(line)
+except KeyboardInterrupt as e:
+    print("\n[+] Cancelling")
+
+# Time to wait
 SEC = 3
 
 def tcpy(d):
@@ -66,6 +80,7 @@ def tcpy(d):
                         print(f"https://{domain}:443/")
                         sys.stdout.flush()
                         IP=""
+
     except KeyboardInterrupt as e:
         print("Cancelling...")
         sys.stdout.flush()
@@ -82,14 +97,8 @@ def tcpy(d):
         pass
 
 def main():
-    with open(domain_list, "r") as f:
-        domains = f.readlines()
-
-    with Pool(50) as p:
-        results = p.map(tcpy, domains)
-        success = list(filter(None, results))
-
-    print("[+] Done...")
+    with Pool(workers) as p:
+        results = p.map(tcpy, domain_list)
 
 if __name__ == "__main__":
     main()
