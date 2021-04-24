@@ -43,7 +43,7 @@ def tcpy(d):
                     return
 
                 if http_result == 0:
-                    print(f"http://{domain}:80/")
+                    print(f"http://{domain}:80")
                     sys.stdout.flush()
                     IP=""
 
@@ -53,7 +53,7 @@ def tcpy(d):
                     socket.setdefaulttimeout(SEC)
 
                     if http_result == 0:
-                        print(f"http://{domain}:80/")
+                        print(f"http://{domain}:80")
                         sys.stdout.flush()
                         IP=""
 
@@ -67,7 +67,7 @@ def tcpy(d):
                    return
 
                 if https_result == 0:
-                    print(f"https://{domain}:443/")
+                    print(f"https://{domain}:443")
                     sys.stdout.flush()
                     IP=""
 
@@ -77,7 +77,7 @@ def tcpy(d):
                     socket.setdefaulttimeout(SEC)
 
                     if https_result == 0:
-                        print(f"https://{domain}:443/")
+                        print(f"https://{domain}:443")
                         sys.stdout.flush()
                         IP=""
 
